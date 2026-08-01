@@ -1,0 +1,255 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+
+body {
+    font-family: "Poppins", sans-serif;
+  }
+
+.wrapper {
+    display: flex;
+  }
+
+  .container {
+   padding-top: 4em;
+   
+  }
+
+
+  .form-container{
+    background-color: white;
+    border-radius: 20px;
+    width: 80%;
+    margin: 0 auto; /* Center the container horizontally */
+  }
+  
+  .main {
+    min-height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    transition: all 0.35s ease-in-out;
+    /* background-color: #fafbfe; */
+    background-color:#D3D3D3;
+  }
+  
+        #userTable th:nth-child(4),
+        #userTable td:nth-child(4) {
+            text-align: center;
+        }
+
+        #userTable tbody tr:nth-of-type(odd) {
+            background-color: #FFFFFF;
+        }
+
+        #userTable tbody tr:last-of-type {
+            border-bottom: 1px solid #165227;
+        }
+
+        #userTable thead tr th {
+            /* background-color: #148634; */
+            background-color: #165227;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #userTable {
+            border-collapse: collapse;
+            font-size: 0.9em;
+            min-width: 400px;
+            border-radius: 5px 5px 0 0;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+            border-color: #165227;
+            text-align: center;
+        }
+
+        #userTable th,
+        #userTable td {
+            padding: 15px;
+        }
+
+        a.page-link {
+            color: #165227;
+        }
+
+        .dt-paging-button.page-item.active>.page-link {
+            color: white;
+            font-weight: bold;
+            background-color: #165227;
+            border-color: #165227;
+            /* Add more styles as needed */
+        }
+
+        .pagination .page-link:focus {
+            color: #165227;
+            background-color: white;
+            box-shadow: 0 0 20px #148634;
+        }
+
+        .form-control.form-control-sm:focus {
+            /* CSS styles here */
+            box-shadow: 0 0 20px #148634;
+        }
+
+        #playerTable th:nth-child(2),
+        #playerTable td:nth-child(2) {
+            text-align: center;
+        }
+
+        #playerTable tbody tr:nth-of-type(odd) {
+            background-color: #FFFFFF;
+        }
+
+        #playerTable tbody tr:last-of-type {
+            border-bottom: 1px solid #165227;
+        }
+
+        #playerTable thead tr th {
+            /* background-color: #148634; */
+            background-color: #165227;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #playerTable {
+            border-collapse: collapse;
+            font-size: 0.9em;
+            min-width: 400px;
+            border-radius: 5px 5px 0 0;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+            border-color: #165227;
+            text-align: center;
+        }
+
+        #playerTable th,
+        #playerTable td {
+            padding: 15px;
+        }
+
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+          }
+          
+          .buttons {
+            background-color: #165227;
+            border-radius: 5px;
+            color: white;
+            padding: 0.5em;
+            margin-top: 1em;
+          }
+
+          .cancel-btn{
+            background-color: red;
+            border-radius: 5px;
+            color: white;
+            padding: 0.5em;
+            margin-top: 1em;
+            margin-right: 0.5em;
+          }
+
+          .buttons:focus{
+            box-shadow: 0 0 20px #148634;
+          }
+
+          header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: white;
+            /* color: #165227; */
+            color: #148634;
+            font-size: 20px;
+            padding: 10px 20px;
+            font-weight: bold;
+          }
+
+          .user-role {
+            font-size: 14px;
+            color: #148634;
+            padding: 4px 8px;
+            border-radius: 4px;
+          }
+
+          .month {
+            font-size: 18px;
+            font-weight: bold;
+            /* color: #148634; */
+        }
+
+        .day {
+            font-size: 48px;
+            font-weight: bold;
+            /* color: #148634; */
+        }
+        
+
+        .no-margin p {
+            margin: 0;
+        }
+
+        .no-padding p {
+            padding: 0;
+        }
+
+        .floating-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            /* background-color: #148634; */
+            background-color: #165227;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .floating-button:hover {
+            /* background-color: #165227; */
+            background-color: #148634;
+        }
+
+        .modal-header {
+            background-color: #165227;
+            color: white;
+
+        }
+
+        .custom-close-button {
+            border: none;
+            /* Removes the border */
+            outline: none;
+            /* Removes the outline that appears when the button is focused */
+            background: transparent;
+            /* Ensures the background is transparent */
+            padding: 0;
+            /* Removes any padding that might create visual space */
+            margin: 0;
+            /* Removes any margin */
+            box-shadow: none;
+            /* Removes any box-shadow which might look like a border */
+            color: white;
+            font-size: 1.5rem;
+            /* Adjust the size as needed */
+        }
+
+        .custom-close-button:hover,
+        .custom-close-button:focus {
+            outline: none;
+            /* Ensures no outline appears when focused or hovered */
+        }
+
+        .card,
+        .accordion {
+            box-shadow: 10px 10px 5px #888888;
+            /* horizontal offset, vertical offset, blur radius, shadow color */
+        }
+        

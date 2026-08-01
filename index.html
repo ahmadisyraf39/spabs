@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart Update Example</title>
+    <!-- Include necessary libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+
+    <style>
+        .active {
+            background-color: #007bff; /* Example: blue color for active state */
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- HTML structure for filter buttons -->
+    <button class="filter-button" data-category="U8">U8</button>
+    <button class="filter-button" data-category="U10">U10</button>
+    <button class="filter-button" data-category="U12">U12</button>
+    <!-- Placeholder for progress chart -->
+    <canvas id="progressChartCanvas" width="400" height="200"></canvas>
+    <!-- Placeholder for attendance chart -->
+    <canvas id="atdChartCanvas" width="400" height="200"></canvas>
+
+    <script>
+        // Wait for the document to load
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize chart variables
+            let progressChart, atdChart;
+
+            // Function to initialize charts
+            const initializeCharts = () => {
+                const progressChartCanvas = document.getElementById('progressChartCanvas');
+                const atdChartCanvas = document.getElementById('atdChartCanvas');
+
+                progressChart = new Chart(progressChartCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Progress Chart',
+                            data: [],
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+                atdChart = new Chart(atdChartCanvas, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Attendance Chart',
+                            data: [],
+                            fill: false,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            };
+
+            // Function to handle chart update based on category
+            const updateCharts = (category) => {
+                $.ajax({
+                    url: 'admin/fetch_chart_data.php',
+                    method: 'POST',
+                    data: { category: category },
+                    success: function (data) {
+                        try {
+                            const chartData = JSON.parse(data);
+                            if (chartData) {
+                                // Update progress chart if progressChart is defined
+                                if (progressChart) {
+                                    progressChart.data.labels = chartData.progressChartLabels;
+                                    progressChart.data.datasets[0].data = chartData.progressChartValues;
+                                    progressChart.update();
+                                } else {
+                                    console.error('progressChart is undefined');
+                                }
+
+                                // Update atd chart if atdChart is defined
+                                if (atdChart) {
+                                    atdChart.data.labels = chartData.atdChartLabels;
+                                    atdChart.data.datasets[0].data = chartData.atdChartValues.map(val => parseFloat(val));
+                                    atdChart.update();
+                                } else {
+                                    console.error('atdChart is undefined');
+                                }
+                            } else {
+                                console.error('Invalid data format received.');
+                            }
+                        } catch (error) {
+                            console.error('Error parsing JSON:', error);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching data:', error);
+                    }
+                });
+            };
+
+            // Attach click event listener to each filter button after charts are initialized
+            initializeCharts();
+            const filterButtons = document.querySelectorAll('.filter-button');
+
+            // Activate "U8" button and update charts on initial load
+    const initialCategory = 'U8';
+    const initialButton = document.querySelector(`[data-category="${initialCategory}"]`);
+    initialButton.classList.add('active'); // Add active class to make it visually active
+    updateCharts(initialCategory); // Update charts for initial category
+    
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const category = this.getAttribute('data-category');
+                    updateCharts(category); // Update charts for selected category
+
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to the clicked button
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

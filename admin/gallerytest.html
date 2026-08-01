@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Thumbnail Example</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lightgallery-bundle.min.css">
+    <style>
+        .img-responsive {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="gallery" id="gallery">
+        <a data-video='{"source": [{"src":"https://www.lightgalleryjs.com/videos/video1.mp4", "type":"video/mp4"}], "tracks": [{"src": "https://www.lightgalleryjs.com/videos/title.txt", "kind":"captions", "srclang": "en", "label": "English", "default": "true"}], "attributes": {"preload": false, "controls": true, "playsinline": true}}'
+            data-sub-html="<h4>'Peck Pocketed' by Kevin Herron | Disney Favorite</h4>">
+            <img class="img-responsive" src="" alt="Video Thumbnail" />
+        </a>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/lightgallery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/autoplay/lg-autoplay.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/thumbnail/lg-thumbnail.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/fullscreen/lg-fullscreen.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/video/lg-video.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const galleryElement = document.getElementById('gallery');
+            lightGallery(galleryElement, {
+                plugins: [lgAutoplay, lgThumbnail, lgFullscreen, lgVideo],
+                selector: 'a'
+            });
+
+            document.querySelectorAll('[data-video]').forEach(link => {
+                const videoData = JSON.parse(link.getAttribute('data-video'));
+                const videoSrc = videoData.source[0].src;
+                const thumbnail = link.querySelector('img');
+
+                const videoElement = document.createElement('video');
+                videoElement.src = videoSrc;
+                videoElement.preload = 'metadata';
+
+                videoElement.addEventListener('loadeddata', () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = videoElement.videoWidth;
+                    canvas.height = videoElement.videoHeight;
+                    const context = canvas.getContext('2d');
+                    context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                    thumbnail.src = canvas.toDataURL();
+                });
+
+                videoElement.load();
+            });
+        });
+    </script>
+
+</body>
+
+</html>

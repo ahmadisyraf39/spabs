@@ -1,0 +1,410 @@
+<?php include_once ("../session.php");
+
+if ($role == "Coach") {
+    header("location:../coach/index.php");
+    exit;
+} elseif ($role == "Admin") {
+    header("location:../admin/index.php");
+    exit;
+}
+
+$conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+if (isset($_GET['albumID'])) {
+    $albumID = $_GET['albumID'];
+
+    $stmt = $conn->prepare("SELECT * FROM tbl_spabs_album
+    INNER JOIN tbl_spabs_aktiviti
+    ON tbl_spabs_album.aktivitiID = tbl_spabs_aktiviti.aktivitiID
+    WHERE albumID = :albumid");
+
+    $stmt->bindParam(':albumid', $albumID, PDO::PARAM_STR);
+
+    $stmt->execute();
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+}
+
+//Delete
+if (isset($_GET['delete'])) {
+
+    try {
+
+        $stmt = $conn->prepare("SELECT nama_media FROM tbl_spabs_media WHERE mediaID = :mid");
+        $stmt->bindParam(':mid', $mid, PDO::PARAM_STR);
+        $mid = $_GET['delete'];
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            $filenameToDelete = $row['nama_media'];
+
+            // Delete the file from the directory
+            $fileToDelete = "../pictures/gallery/$albumID/$filenameToDelete"; // Assuming the directory structure
+            if (file_exists($fileToDelete)) {
+                unlink($fileToDelete); // Delete the file
+            }
+        }
+
+        // Delete the record from the database
+        $stmtDelete = $conn->prepare("DELETE FROM tbl_spabs_media WHERE mediaID = :mid");
+        $stmtDelete->bindParam(':mid', $mid, PDO::PARAM_STR);
+        $stmtDelete->execute();
+
+        // Redirect to gallery_media.php with albumID
+        header("Location: gallery_media.php?albumID=" . urlencode($albumID));
+        exit(); // Ensure no further code is executed after the redirect
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+    }
+}
+
+?>
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPABS: Gallery</title>
+    <link rel="icon" href="../pictures/icons/logo.png" type="image/png">
+
+
+    <!-- <link href="css/bootstrap.css" rel="stylesheet"> -->
+    <link href="../css/main.css" rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lightgallery-bundle.min.css">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/css/lg-autoplay.min.css"> -->
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css">
+
+    <style>
+        * {
+            transition: all .2s linear;
+        }
+
+        .img-fixed {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .img-container {
+            position: relative;
+        }
+
+        .floating-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #165227;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .floating-button:hover {
+            background-color: #148634;
+        }
+
+        .modal-header {
+            background-color: #165227;
+            color: white;
+        }
+
+        .gallery {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 90%;
+            margin: 0 auto;
+        }
+
+        .gallery-item-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 5px;
+            /* Reduce margin for more items per row */
+            width: 23%;
+            /* Adjust width to fit 4 items per row */
+        }
+
+        .gallery a {
+            position: relative;
+            display: inline-block;
+            height: 250px;
+            width: 100%;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 10px 10px 5px #888888;
+        }
+
+        .gallery a img,
+        .gallery a video {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            will-change: transform;
+        }
+
+        .gallery a img:hover,
+        .gallery a video:hover {
+            transform: scale(1.1);
+        }
+
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            color: white;
+            pointer-events: none;
+        }
+
+        .gallery-item {
+            width: 200px;
+            padding: 5px;
+            box-shadow: 10px 10px 5px #888888;
+        }
+
+        .lg-toolbar svg {
+            fill: #999;
+            width: 22px;
+            height: 22px;
+        }
+
+        .lg-toolbar .lg-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card,
+        .accordion,
+        .form-container {
+            box-shadow: 10px 10px 5px #888888;
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+    <div class="wrapper">
+
+        <?php include_once 'sidebar.php'; ?>
+
+        <div class="main">
+
+            <header>
+                <span class="ms-2">Gallery - <?php echo $row['nama_aktiviti']; ?></span>
+                <span class="user-role">Admin</span>
+            </header>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb ms-5 mt-2">
+                    <li class="breadcrumb-item"><a href="gallery.php">Gallery</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Media</li>
+                </ol>
+            </nav>
+
+            <div class="container">
+
+                <!-- <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4" id="gallery"> -->
+                <div class="gallery" id="gallery">
+
+                    <?php
+
+                    // Check if album_id is set in the URL
+                    if (isset($_GET['albumID'])) {
+                        // Assuming you have a database connection
+                        $albumID = $_GET['albumID'];
+
+                        try {
+                            $stmt = $conn->prepare("SELECT * FROM tbl_spabs_media WHERE albumID = :albumid");
+                            $stmt->bindParam(':albumid', $albumID, PDO::PARAM_STR);
+                            $stmt->execute();
+
+                            while ($readrow = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                $filePath = "../pictures/gallery/" . $readrow['albumID'] . "/" . $readrow['nama_media'];
+                                $fileType = $readrow['jenis_media']; // Assuming 'file_type' is the column name in your database
+                    
+                                if ($fileType === 'image') {
+                                    // It's an image file
+                                    ?>
+                                    <div class="gallery-item-container">
+                                        <a href="<?php echo $filePath; ?>">
+                                            <img src="<?php echo $filePath; ?>" alt="" class="img-fixed"
+                                                style="border: 1px solid white;">
+                                        </a>
+                                    </div>
+
+
+                                    <?php
+                                } elseif ($fileType === 'video') {
+                                    // It's a video file
+                                    ?>
+                                    <!-- <a href="<?php echo $filePath; ?>">
+                                        <video class="video-fixed" controls style="border: 1px solid white;">
+                                            <source src="<?php echo $filePath; ?>"
+                                                type="video/<?php echo pathinfo($filePath, PATHINFO_EXTENSION); ?>">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                        <div class="play-button">
+                                            <i class="bi bi-play-circle"></i>
+                                        </div>
+                                    </a> -->
+                                    <div class="gallery-item-container">
+                                        <a
+                                            data-video='{"source": [{"src":"<?php echo $filePath; ?>", "type":"video/<?php echo pathinfo($filePath, PATHINFO_EXTENSION); ?>"}], 
+                                                    "attributes": {"preload": false, "controls": true, "playsinline": true}}'>
+                                            <!-- <img class="img-responsive" src="<?php echo $filePath; ?>" alt=" Video Thumbnail" /> -->
+                                            <video src="<?php echo $filePath; ?>" class="img-fixed"
+                                                style="border: 1px solid white;"></video>
+                                            <div class="play-button">
+                                                <i class="bi bi-play-circle"></i>
+                                            </div>
+                                        </a>
+
+                                    </div>
+
+                                    <?php
+                                }
+
+                            }
+                        } catch (PDOException $e) {
+                            echo "Error: " . $e->getMessage();
+                        }
+                    } else {
+                        echo "Album ID not set.";
+                    }
+                    ?>
+
+
+                    <!-- <a data-video='{"source": [{"src":"https://www.lightgalleryjs.com/videos/video1.mp4", "type":"video/mp4"}], 
+                        "attributes": {"preload": false, "controls": true, "playsinline": true}}'>
+                        <img class="img-responsive" src="" alt=" Video Thumbnail" />
+                    </a> -->
+
+
+
+                </div>
+
+                <!-- <a href="uploadimg.php?albumID=<?php echo $albumID; ?>" role="button">+</a> -->
+
+
+
+
+                <!-- Modal -->
+                <div class="modal fade" id="uploadMediaModal" tabindex="-1" role="dialog"
+                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="uploadMediaModal">Upload Media</h5>
+                                    <button type="button" class="custom-close-button" data-dismiss="modal"
+                                        aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+
+
+                                </div>
+                                <!-- <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- jQuery, Popper.js, and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/lightgallery.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/autoplay/lg-autoplay.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/thumbnail/lg-thumbnail.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/fullscreen/lg-fullscreen.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.7.2/plugins/video/lg-video.min.js"></script>
+
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            // Initialize Tippy.js tooltips
+            tippy('#uploadMedia', {
+                placement: 'left'
+            });
+
+
+        });
+
+        $('#uploadMediaModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget); // Button that triggered the modal
+            var url = button.data('href'); // Extract info from data-* attributes
+            var modal = $(this);
+
+            // Use jQuery to load the content of the URL into the modal body
+            $.ajax({
+                url: url,
+                success: function (data) {
+                    modal.find('.modal-body').html(data);
+                }
+            });
+        });
+
+        // Refresh the page when the modal is closed
+        $('#uploadMediaModal').on('hide.bs.modal', function () {
+            location.reload();
+        });
+
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const galleryElement = document.getElementById('gallery');
+
+
+            lightGallery(galleryElement, {
+                plugins: [lgFullscreen, lgVideo],
+                selector: 'a',
+                licenseKey: 'D3F14FC6-13D3-4BD2-9C0A-2115881DEC51'
+            });
+        });
+
+        // lightGallery(document.querySelector('.gallery'));
+    </script>
+
+
+
+</body>
+
+</html>
