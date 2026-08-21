@@ -12,6 +12,17 @@ By role:
 
 Shared functionality includes secure login with role-based redirects, session handling, and an admin/coach/parent-specific sidebar navigation.
 
+## Screenshots
+
+| | |
+| --- | --- |
+| ![Login](media/login.png) Login | ![User table](media/user_table.jpg) User table |
+| ![Activity list](media/activity_list.png) Activity list | ![Taking attendance](media/taking_attendance.jpg) Taking attendance |
+| ![Player progress list](media/player_progres_list.png) Player progress list | ![Update progress](media/update_progress.jpg) Update progress |
+| ![Player progress details](media/player_progress_details.png) Player progress details | ![Admin fee list](media/admin_fee_list.png) Admin fee list |
+| ![Parent fee list / history](media/parent_fee_list_history.jpg) Parent fee list / history | ![Update payment manually](media/update_payment_manually.jpg) Update payment manually |
+| ![Stripe payment](media/stripe_payment.png) Stripe payment | |
+
 ## Tech stack
 
 - **Backend:** PHP (procedural, PDO for MySQL)
