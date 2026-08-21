@@ -31,8 +31,10 @@ spabs/
 ├── js/                  Client-side scripts (jQuery, DataTables, custom)
 ├── pictures/             Static images, player photos, gallery media
 ├── vendor/               Composer dependencies (incl. Stripe SDK)
-├── database.php         Database connection credentials
-├── db.php                Database connection (used by login)
+├── database.php         Database connection credentials (git-ignored, copy from database.example.php)
+├── db.php                Database connection used by login (git-ignored, copy from db.example.php)
+├── database.example.php  Template for database.php
+├── db.example.php        Template for db.php
 ├── session.php           Session bootstrap + logged-in user lookup
 ├── login.php              Login page and auth logic
 ├── login_success.php      Post-login role-based redirect
@@ -62,13 +64,12 @@ spabs/
    ```bash
    composer install
    ```
-3. Create a MySQL database and import your schema (see **Database** below), then update the connection details in `database.php` and `db.php`:
-   ```php
-   $servername = "your-db-host";
-   $username   = "your-db-username";
-   $password   = "your-db-password";
-   $dbname     = "your-db-name";
+3. Create a MySQL database and import your schema (see **Database** below), then copy the example config files and fill in your own connection details:
+   ```bash
+   cp database.example.php database.php
+   cp db.example.php db.php
    ```
+   Both files are git-ignored, so your credentials stay out of source control.
 4. Set your Stripe secret key in `parent/payment.php` (replace the `YOUR_STRIPE_TEST_KEY` placeholder with your own test/live key from the [Stripe Dashboard](https://dashboard.stripe.com/apikeys)).
 5. Serve the app, e.g. with the PHP built-in server:
    ```bash
@@ -107,6 +108,6 @@ The app expects a MySQL database with tables prefixed `tbl_spabs_`, referenced t
 
 This project was archived as a completed academic/legacy build, so a few things are worth fixing before any real deployment:
 
-- `database.php` and `db.php` contain **hardcoded live-looking database credentials**. Rotate these credentials and move them out of source control (e.g. into environment variables or a git-ignored config file) before pushing further changes.
+- `database.php` and `db.php` are now git-ignored (see `database.example.php` / `db.example.php` for the expected structure). The credentials that were previously hardcoded and committed here have been scrubbed from git history — make sure the corresponding database password has also been rotated on the server, since it was exposed in the repo before this fix.
 - `parent/payment.php` uses a placeholder Stripe key (`YOUR_STRIPE_TEST_KEY`) — replace with your own key, ideally loaded from an environment variable rather than hardcoded.
 - Some queries interpolate variables directly into SQL strings rather than using prepared-statement bindings; review these for SQL injection risk before production use.
